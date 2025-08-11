@@ -669,7 +669,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     return Math.floor((now - start) / 1000);
   }, [state.currentWorkout]);
   
-  return useMemo(() => ({
+  return {
     // State
     stats: state.stats,
     companions: state.companions,
@@ -703,26 +703,5 @@ export const [AppProvider, useApp] = createContextHook(() => {
     toggleHotspot,
     resetAllData,
     resetSeeds
-  }), [
-    state,
-    selectedCompanion,
-    currentBiome,
-    workoutDuration,
-    isInitialized,
-    addSteps,
-    syncHealthSteps,
-    startWorkout,
-    endWorkout,
-    selectCompanion,
-    resetSelectedCompanionLevel,
-    regenerateCompanions,
-    setBiome,
-    addBiomeResource,
-    addDiscovery,
-    toggleDebugMode,
-    setStepSource,
-    toggleHotspot,
-    resetAllData,
-    resetSeeds
-  ]);
+  };
 });
