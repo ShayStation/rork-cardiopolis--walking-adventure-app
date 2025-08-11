@@ -46,33 +46,11 @@ export default function WorkoutScreen() {
     }
   };
   
-  if (!currentWorkout) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.centerContent}>
-          <Text style={styles.title}>Ready to Start?</Text>
-          <Text style={styles.subtitle}>
-            {selectedCompanion 
-              ? `Your companion ${selectedCompanion.name} is ready!`
-              : 'Select a companion to begin your workout'}
-          </Text>
-          <Button
-            title={selectedCompanion ? "Start Workout" : "Select Companion"}
-            onPress={handleStartWorkout}
-            variant="success"
-            size="large"
-            style={styles.startButton}
-          />
-        </View>
-      </View>
-    );
-  }
-  
   const xpProgress = selectedCompanion ? getXPProgress(selectedCompanion.totalXP + selectedCompanion.sessionXP) : null;
   
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Workout Statistics Card */}
+      {/* Workout Statistics Card - Always visible */}
       <View style={styles.statsCard}>
         <View style={styles.statsHeader}>
           <BarChart3 size={24} color="#4CAF50" />
@@ -102,83 +80,107 @@ export default function WorkoutScreen() {
         </View>
       </View>
       
-      {/* Current Workout Stats */}
-      <Card>
-        <View style={styles.mainStats}>
-          <Text style={styles.bigNumber}>{formatNumber(stats.workoutSteps)}</Text>
-          <Text style={styles.bigLabel}>Current Workout Steps</Text>
-          <Text style={styles.duration}>Duration: {formatDuration(workoutDuration)}</Text>
+      {/* No Active Workout State */}
+      {!currentWorkout && (
+        <View style={styles.noWorkoutContainer}>
+          <Text style={styles.title}>Ready to Start?</Text>
+          <Text style={styles.subtitle}>
+            {selectedCompanion 
+              ? `Your companion ${selectedCompanion.name} is ready!`
+              : 'Select a companion to begin your workout'}
+          </Text>
+          <Button
+            title={selectedCompanion ? "Start Workout" : "Select Companion"}
+            onPress={handleStartWorkout}
+            variant="success"
+            size="large"
+            style={styles.startButton}
+          />
         </View>
-      </Card>
-      
-      {/* Session Progress */}
-      <Card title="Session Progress">
-        <View style={styles.sessionStats}>
-          <View style={styles.sessionStat}>
-            <Text style={styles.sessionValue}>{currentWorkout.sessionXP}</Text>
-            <Text style={styles.sessionLabel}>Session XP</Text>
-          </View>
-          <View style={styles.sessionStat}>
-            <Text style={styles.sessionValue}>{currentWorkout.seeds}</Text>
-            <Text style={styles.sessionLabel}>Seeds Grown</Text>
-          </View>
-        </View>
-      </Card>
-      
-      {/* Companion Tracker */}
-      {selectedCompanion && xpProgress && (
-        <Card title="Companion Tracker">
-          <View style={styles.companionTracker}>
-            <Text style={styles.companionName}>{selectedCompanion.name}</Text>
-            <Text style={styles.companionLevel}>Level {selectedCompanion.level}</Text>
-            <ProgressBar
-              current={xpProgress.current}
-              max={xpProgress.needed}
-              label="Experience"
-              color="#2196F3"
-              showPercentage
-            />
-            {selectedCompanion.sessionXP > 0 && (
-              <Text style={styles.sessionXP}>+{selectedCompanion.sessionXP} XP this session</Text>
-            )}
-          </View>
-        </Card>
       )}
       
-      {/* Debug Controls */}
-      {settings.debugMode && (
-        <Card title="Debug Controls">
-          <View style={styles.debugGrid}>
-            <Button
-              title="+100"
-              onPress={() => addSteps(100)}
-              variant="secondary"
-              size="small"
-            />
-            <Button
-              title="+1000"
-              onPress={() => addSteps(1000)}
-              variant="secondary"
-              size="small"
-            />
-            <Button
-              title={settings.stepSource === 'health' ? 'Sync Health' : 'Check Steps'}
-              onPress={handleCheckSteps}
-              variant="secondary"
-              size="small"
-            />
-          </View>
-        </Card>
+      {/* Active Workout Content */}
+      {currentWorkout && (
+        <>
+          {/* Current Workout Stats */}
+          <Card>
+            <View style={styles.mainStats}>
+              <Text style={styles.bigNumber}>{formatNumber(stats.workoutSteps)}</Text>
+              <Text style={styles.bigLabel}>Current Workout Steps</Text>
+              <Text style={styles.duration}>Duration: {formatDuration(workoutDuration)}</Text>
+            </View>
+          </Card>
+          
+          {/* Session Progress */}
+          <Card title="Session Progress">
+            <View style={styles.sessionStats}>
+              <View style={styles.sessionStat}>
+                <Text style={styles.sessionValue}>{currentWorkout.sessionXP}</Text>
+                <Text style={styles.sessionLabel}>Session XP</Text>
+              </View>
+              <View style={styles.sessionStat}>
+                <Text style={styles.sessionValue}>{currentWorkout.seeds}</Text>
+                <Text style={styles.sessionLabel}>Seeds Grown</Text>
+              </View>
+            </View>
+          </Card>
+          
+          {/* Companion Tracker */}
+          {selectedCompanion && xpProgress && (
+            <Card title="Companion Tracker">
+              <View style={styles.companionTracker}>
+                <Text style={styles.companionName}>{selectedCompanion.name}</Text>
+                <Text style={styles.companionLevel}>Level {selectedCompanion.level}</Text>
+                <ProgressBar
+                  current={xpProgress.current}
+                  max={xpProgress.needed}
+                  label="Experience"
+                  color="#2196F3"
+                  showPercentage
+                />
+                {selectedCompanion.sessionXP > 0 && (
+                  <Text style={styles.sessionXP}>+{selectedCompanion.sessionXP} XP this session</Text>
+                )}
+              </View>
+            </Card>
+          )}
+          
+          {/* Debug Controls */}
+          {settings.debugMode && (
+            <Card title="Debug Controls">
+              <View style={styles.debugGrid}>
+                <Button
+                  title="+100"
+                  onPress={() => addSteps(100)}
+                  variant="secondary"
+                  size="small"
+                />
+                <Button
+                  title="+1000"
+                  onPress={() => addSteps(1000)}
+                  variant="secondary"
+                  size="small"
+                />
+                <Button
+                  title={settings.stepSource === 'health' ? 'Sync Health' : 'Check Steps'}
+                  onPress={handleCheckSteps}
+                  variant="secondary"
+                  size="small"
+                />
+              </View>
+            </Card>
+          )}
+          
+          {/* End Workout Button */}
+          <Button
+            title="End Workout"
+            onPress={handleEndWorkout}
+            variant="danger"
+            size="large"
+            style={styles.endButton}
+          />
+        </>
       )}
-      
-      {/* End Workout Button */}
-      <Button
-        title="End Workout"
-        onPress={handleEndWorkout}
-        variant="danger"
-        size="large"
-        style={styles.endButton}
-      />
     </ScrollView>
   );
 }
@@ -192,11 +194,10 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
+  noWorkoutContainer: {
     alignItems: 'center',
     padding: 32,
+    marginVertical: 16,
   },
   title: {
     fontSize: 28,
