@@ -1,28 +1,15 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Footprints, Dumbbell, Trees, BarChart3 } from 'lucide-react-native';
+import { Footprints, Dumbbell, Trees } from 'lucide-react-native';
 import { useApp } from '@/providers/app-provider';
-import { Button } from '@/components/Button';
 import { ProgressBar } from '@/components/ProgressBar';
 import { formatNumber } from '@/utils/helpers';
 
 export default function HomeScreen() {
-  const router = useRouter();
   const {
     stats,
-    selectedCompanion,
-    startWorkout
+    selectedCompanion
   } = useApp();
-  
-  const handleStartWorkout = () => {
-    if (selectedCompanion) {
-      startWorkout(selectedCompanion.id);
-      router.push('/workout');
-    } else {
-      router.push('/companion-select');
-    }
-  };
   
   return (
     <View style={styles.container}>
@@ -90,45 +77,7 @@ export default function HomeScreen() {
             </View>
           </View>
           
-          {/* Workout Statistics Card */}
-          <View style={styles.statsCard}>
-            <View style={styles.statsHeader}>
-              <BarChart3 size={24} color="#4CAF50" />
-              <Text style={styles.statsTitle}>Workout Statistics</Text>
-            </View>
-            
-            <View style={styles.statsGrid}>
-              <View style={styles.statColumn}>
-                <Text style={styles.statNumber}>42</Text>
-                <Text style={styles.statLabel}>Total Workouts</Text>
-              </View>
-              <View style={styles.statColumn}>
-                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>89,420</Text>
-                <Text style={styles.statLabel}>Workout Steps</Text>
-              </View>
-            </View>
-            
-            <View style={styles.statsGrid}>
-              <View style={styles.statColumn}>
-                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>2,129</Text>
-                <Text style={styles.statLabel}>Avg per Workout</Text>
-              </View>
-              <View style={styles.statColumn}>
-                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>4,850</Text>
-                <Text style={styles.statLabel}>Best Session</Text>
-              </View>
-            </View>
-          </View>
-          
-          {/* Start Workout Button */}
-          <View style={styles.workoutButtonContainer}>
-            <Button
-              title="▶ Start Workout"
-              onPress={handleStartWorkout}
-              style={styles.startWorkoutButton}
-              textStyle={styles.startWorkoutText}
-            />
-          </View>
+
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -293,63 +242,5 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 2,
   },
-  statsCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  statsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  statsTitle: {
-    fontSize: 18,
-    fontWeight: '600' as const,
-    color: '#1A1A1A',
-    marginLeft: 8,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  statColumn: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-  workoutButtonContainer: {
-    marginTop: 8,
-  },
-  startWorkoutButton: {
-    backgroundColor: '#4285F4',
-    borderRadius: 12,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  startWorkoutText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: 'white',
-  },
+
 });

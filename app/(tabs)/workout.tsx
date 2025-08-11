@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { BarChart3 } from 'lucide-react-native';
 import { useApp } from '@/providers/app-provider';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -71,11 +72,41 @@ export default function WorkoutScreen() {
   
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Workout Stats */}
+      {/* Workout Statistics Card */}
+      <View style={styles.statsCard}>
+        <View style={styles.statsHeader}>
+          <BarChart3 size={24} color="#4CAF50" />
+          <Text style={styles.statsTitle}>Workout Statistics</Text>
+        </View>
+        
+        <View style={styles.statsGrid}>
+          <View style={styles.statColumn}>
+            <Text style={styles.statNumber}>{stats.totalWorkouts}</Text>
+            <Text style={styles.statLabel}>Total Workouts</Text>
+          </View>
+          <View style={styles.statColumn}>
+            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.totalSteps)}</Text>
+            <Text style={styles.statLabel}>Total Steps</Text>
+          </View>
+        </View>
+        
+        <View style={styles.statsGrid}>
+          <View style={styles.statColumn}>
+            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{stats.totalWorkouts > 0 ? Math.floor(stats.totalSteps / stats.totalWorkouts) : 0}</Text>
+            <Text style={styles.statLabel}>Avg per Workout</Text>
+          </View>
+          <View style={styles.statColumn}>
+            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.totalSeeds)}</Text>
+            <Text style={styles.statLabel}>Seeds Grown</Text>
+          </View>
+        </View>
+      </View>
+      
+      {/* Current Workout Stats */}
       <Card>
         <View style={styles.mainStats}>
           <Text style={styles.bigNumber}>{formatNumber(stats.workoutSteps)}</Text>
-          <Text style={styles.bigLabel}>Workout Steps</Text>
+          <Text style={styles.bigLabel}>Current Workout Steps</Text>
           <Text style={styles.duration}>Duration: {formatDuration(workoutDuration)}</Text>
         </View>
       </Card>
@@ -245,5 +276,47 @@ const styles = StyleSheet.create({
   },
   endButton: {
     marginTop: 16,
+  },
+  statsCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  statsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: '600' as const,
+    color: '#1A1A1A',
+    marginLeft: 8,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  statColumn: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: '#1A1A1A',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
   },
 });
