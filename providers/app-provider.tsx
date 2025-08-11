@@ -165,8 +165,9 @@ export const [AppProvider, useApp] = createContextHook(() => {
     }
   });
   
-  const [state, setState] = useState<AppState>(persistedState || initialState);
+  const [state, setState] = useState<AppState>(() => persistedState || initialState);
   
+  // Initialize state from persisted data
   useEffect(() => {
     if (persistedState && !isInitialized) {
       setState(persistedState);
@@ -192,7 +193,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     if (isInitialized) {
       saveMutation.mutate(state);
     }
-  }, [state, isInitialized]);
+  }, [state, isInitialized]); // saveMutation is stable from useMutation
   
 
   
@@ -279,7 +280,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       
       return newState;
     });
-  }, []);
+  }, [checkDailyReset]);
   
   // Public step management (for debug mode)
   const addSteps = useCallback((steps: number) => {
@@ -559,7 +560,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     } catch (error) {
       console.log('Error syncing health steps:', error);
     }
-  }, []);
+  }, [checkDailyReset]);
   
   const stopHealthTracking = useCallback(() => {
     if (healthTrackingCleanup) {
@@ -621,25 +622,18 @@ export const [AppProvider, useApp] = createContextHook(() => {
   
   // Initialize health service when app starts if health mode is enabled
   useEffect(() => {
-    if (isInitialized && state.settings.stepSource === 'health') {
+    if (!isInitialized) return;
+    
+    if (state.settings.stepSource === 'health') {
       initializeHealthService();
+    } else {
+      stopHealthTracking();
     }
     
     // Cleanup on unmount
     return () => {
       stopHealthTracking();
     };
-  }, [isInitialized, state.settings.stepSource, initializeHealthService, stopHealthTracking]);
-  
-  // Handle step source changes
-  useEffect(() => {
-    if (isInitialized) {
-      if (state.settings.stepSource === 'health') {
-        initializeHealthService();
-      } else {
-        stopHealthTracking();
-      }
-    }
   }, [isInitialized, state.settings.stepSource, initializeHealthService, stopHealthTracking]);
   
   // Computed values
@@ -660,7 +654,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     return Math.floor((now - start) / 1000);
   }, [state.currentWorkout]);
   
-  return {
+  return useMemo(() => ({
     // State
     stats: state.stats,
     companions: state.companions,
@@ -694,5 +688,26 @@ export const [AppProvider, useApp] = createContextHook(() => {
     toggleHotspot,
     resetAllData,
     resetSeeds
-  };
+  }), [
+    state,
+    selectedCompanion,
+    currentBiome,
+    workoutDuration,
+    isInitialized,
+    addSteps,
+    syncHealthSteps,
+    startWorkout,
+    endWorkout,
+    selectCompanion,
+    resetSelectedCompanionLevel,
+    regenerateCompanions,
+    setBiome,
+    addBiomeResource,
+    addDiscovery,
+    toggleDebugMode,
+    setStepSource,
+    toggleHotspot,
+    resetAllData,
+    resetSeeds
+  ]);
 });
