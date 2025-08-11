@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, Switch, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Activity, Footprints } from 'lucide-react-native';
 import { useApp } from '@/providers/app-provider';
 import { Card } from '@/components/Card';
@@ -33,7 +34,8 @@ export default function ProfileScreen() {
   };
   
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container}>
       {/* Lifetime Stats */}
       <Card title="Lifetime Stats">
         <View style={styles.statsGrid}>
@@ -137,11 +139,16 @@ export default function ProfileScreen() {
           variant="danger"
         />
       </Card>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/providers/app-provider';
 import { CompanionCard } from '@/components/CompanionCard';
 import { Button } from '@/components/Button';
@@ -49,7 +50,8 @@ export default function CompanionsScreen() {
   };
   
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container}>
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <Button
@@ -101,11 +103,16 @@ export default function CompanionsScreen() {
           </View>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',

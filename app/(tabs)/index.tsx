@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Footprints, Dumbbell, Trees } from 'lucide-react-native';
 import { useApp } from '@/providers/app-provider';
 import { ProgressBar } from '@/components/ProgressBar';
@@ -12,8 +13,8 @@ export default function HomeScreen() {
   } = useApp();
   
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
         <ScrollView 
           style={styles.scrollView}
           contentContainerStyle={styles.content}
@@ -79,18 +80,19 @@ export default function HomeScreen() {
           
 
         </ScrollView>
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#E8F5E8',
   },
-  safeArea: {
+  container: {
     flex: 1,
+    backgroundColor: '#E8F5E8',
   },
   scrollView: {
     flex: 1,

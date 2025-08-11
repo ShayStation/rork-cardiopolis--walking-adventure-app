@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Flower, TreePine, Cast, Snowflake } from 'lucide-react-native';
 import { useApp } from '@/providers/app-provider';
 import { Card } from '@/components/Card';
@@ -45,10 +46,11 @@ export default function VillageScreen() {
   };
   
   return (
-    <ScrollView 
-      style={[styles.container, { backgroundColor: currentBiome.backgroundColor }]}
-      contentContainerStyle={styles.content}
-    >
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentBiome.backgroundColor }]} edges={['top']}>
+      <ScrollView 
+        style={[styles.container, { backgroundColor: currentBiome.backgroundColor }]}
+        contentContainerStyle={styles.content}
+      >
       {/* Resources */}
       <Card title="Village Resources">
         <View style={styles.resourceGrid}>
@@ -128,11 +130,15 @@ export default function VillageScreen() {
           />
         </Card>
       )}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
