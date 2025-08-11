@@ -175,8 +175,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
     }
   }, [persistedState, isInitialized]);
   
-
-  
   // Save state mutation
   const saveMutation = useMutation({
     mutationFn: async (newState: AppState) => {
@@ -193,9 +191,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     if (isInitialized) {
       saveMutation.mutate(state);
     }
-  }, [state, isInitialized]); // saveMutation is stable from useMutation
-  
-
+  }, [state, isInitialized]); // saveMutation.mutate is stable
   
   // Check if we need to reset daily steps
   const checkDailyReset = useCallback((state: AppState) => {
