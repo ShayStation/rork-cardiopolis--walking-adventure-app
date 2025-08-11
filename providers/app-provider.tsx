@@ -139,6 +139,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const [healthTrackingCleanup, setHealthTrackingCleanup] = useState<(() => void) | null>(null);
   const [lastHealthSync, setLastHealthSync] = useState<Date | null>(null);
   const lastKnownHealthStepsRef = useRef(0);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Load persisted state
   const { data: persistedState } = useQuery({
@@ -186,12 +187,29 @@ export const [AppProvider, useApp] = createContextHook(() => {
     }
   });
   
-  // Auto-save on state changes
+  const { mutate: saveToStorage } = saveMutation;
+  
+  // Auto-save on state changes with debouncing
   useEffect(() => {
     if (isInitialized) {
-      saveMutation.mutate(state);
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      // Set new timeout to save after a short delay
+      saveTimeoutRef.current = setTimeout(() => {
+        saveToStorage(state);
+      }, 100);
     }
-  }, [state, isInitialized]); // saveMutation.mutate is stable
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [state, isInitialized, saveToStorage]);
   
   // Check if we need to reset daily steps
   const checkDailyReset = useCallback((state: AppState) => {
@@ -586,35 +604,36 @@ export const [AppProvider, useApp] = createContextHook(() => {
   }, [healthTrackingCleanup, addStepsInternal]);
   
   const initializeHealthService = useCallback(async () => {
-    if (state.settings.stepSource === 'health') {
-      console.log('Initializing health service...');
-      const isAvailable = await healthService.isAvailable();
-      if (isAvailable) {
-        const hasPermission = await healthService.requestPermissions();
-        setHealthPermissionGranted(hasPermission);
+    console.log('Initializing health service...');
+    const isAvailable = await healthService.isAvailable();
+    if (isAvailable) {
+      const hasPermission = await healthService.requestPermissions();
+      setHealthPermissionGranted(hasPermission);
+      
+      if (hasPermission) {
+        // Initialize the ref with current total steps to avoid double counting
+        setState(prev => {
+          lastKnownHealthStepsRef.current = prev.stats.totalSteps;
+          return prev;
+        });
         
-        if (hasPermission) {
-          // Initialize the ref with current total steps to avoid double counting
-          lastKnownHealthStepsRef.current = state.stats.totalSteps;
-          
-          // Sync existing steps from health app
-          await syncHealthSteps();
-          
-          // Start tracking new steps
-          startHealthTracking();
-        }
-      } else {
-        console.log('Health service not available, falling back to debug mode');
-        setState(prev => ({
-          ...prev,
-          settings: {
-            ...prev.settings,
-            stepSource: 'debug'
-          }
-        }));
+        // Sync existing steps from health app
+        await syncHealthSteps();
+        
+        // Start tracking new steps
+        startHealthTracking();
       }
+    } else {
+      console.log('Health service not available, falling back to debug mode');
+      setState(prev => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          stepSource: 'debug'
+        }
+      }));
     }
-  }, [state.settings.stepSource, state.stats.totalSteps, syncHealthSteps, startHealthTracking]);
+  }, [syncHealthSteps, startHealthTracking]);
   
   // Initialize health service when app starts if health mode is enabled
   useEffect(() => {
