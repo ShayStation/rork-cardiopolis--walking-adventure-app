@@ -52,7 +52,7 @@ const initialState: AppState = {
   companions: [],
   currentWorkout: null,
   settings: {
-    debugMode: true,
+    debugMode: false,
     stepSource: 'health',
     activeHotspots: [],
     soundEnabled: true
