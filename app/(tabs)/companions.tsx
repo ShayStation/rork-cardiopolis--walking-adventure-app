@@ -10,7 +10,6 @@ export default function CompanionsScreen() {
   const {
     companions,
     settings,
-    selectCompanion,
     resetSelectedCompanionLevel,
     regenerateCompanions
   } = useApp();
@@ -77,8 +76,6 @@ export default function CompanionsScreen() {
           <CompanionCard
             key={companion.id}
             companion={companion}
-            onSelect={() => selectCompanion(companion.id)}
-            showDetails
           />
         ))}
       </View>
