@@ -28,11 +28,11 @@ export default function HomeScreen() {
           {/* Today's Steps Card */}
           <View style={styles.stepsCard}>
             <Text style={styles.cardTitle}>Today&apos;s Steps</Text>
-            <Text style={styles.stepsCount}>{formatNumber(stats.totalSteps)}</Text>
+            <Text style={styles.stepsCount}>{formatNumber(stats.dailySteps)}</Text>
             <View style={styles.stepsStats}>
               <View style={styles.statItem}>
                 <Footprints size={16} color="#666" />
-                <Text style={styles.statText}>Total: {formatNumber(stats.totalSteps)}</Text>
+                <Text style={styles.statText}>Daily: {formatNumber(stats.dailySteps)}</Text>
               </View>
               <View style={styles.statItem}>
                 <Dumbbell size={16} color="#666" />
@@ -41,7 +41,7 @@ export default function HomeScreen() {
             </View>
           </View>
           
-          {/* Companion Card */}
+          {/* Companion Card - Smaller Version */}
           {selectedCompanion && (
             <View style={styles.companionCard}>
               <View style={styles.companionHeader}>
@@ -54,14 +54,14 @@ export default function HomeScreen() {
                   <Text style={styles.companionLevel}>Level {selectedCompanion.level}</Text>
                 </View>
                 <View style={styles.xpContainer}>
-                  <Text style={styles.xpText}>{selectedCompanion.totalXP}/1000 XP</Text>
+                  <Text style={styles.xpText}>{selectedCompanion.totalXP}/500</Text>
                 </View>
               </View>
               <ProgressBar 
                 current={selectedCompanion.totalXP} 
-                max={1000} 
+                max={500} 
                 color="#000" 
-                height={8}
+                height={6}
               />
             </View>
           )}
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
   },
   companionCard: {
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -165,19 +165,19 @@ const styles = StyleSheet.create({
   companionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   companionAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#FFA726',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   avatarText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '700' as const,
     color: 'white',
   },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   companionName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600' as const,
     color: '#1A1A1A',
   },
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   xpText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600' as const,
     color: '#1A1A1A',
   },

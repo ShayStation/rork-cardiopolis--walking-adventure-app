@@ -99,6 +99,7 @@ export interface Settings {
 
 export interface AppStats {
   totalSteps: number;
+  dailySteps: number;
   workoutSteps: number;
   totalWorkouts: number;
   totalSeeds: number;
@@ -106,4 +107,5 @@ export interface AppStats {
   lastWorkoutDate?: string;
   dailyDiscoveryCount: number;
   dailyDiscoveryDate?: string;
+  lastResetDate: string;
 }

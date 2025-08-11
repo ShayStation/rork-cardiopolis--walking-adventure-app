@@ -85,15 +85,15 @@ export default function WorkoutScreen() {
             <Text style={styles.statLabel}>Total Workouts</Text>
           </View>
           <View style={styles.statColumn}>
-            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.totalSteps)}</Text>
-            <Text style={styles.statLabel}>Total Steps</Text>
+            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.dailySteps)}</Text>
+            <Text style={styles.statLabel}>Daily Steps</Text>
           </View>
         </View>
         
         <View style={styles.statsGrid}>
           <View style={styles.statColumn}>
-            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{stats.totalWorkouts > 0 ? Math.floor(stats.totalSteps / stats.totalWorkouts) : 0}</Text>
-            <Text style={styles.statLabel}>Avg per Workout</Text>
+            <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.totalSteps)}</Text>
+            <Text style={styles.statLabel}>Total Steps</Text>
           </View>
           <View style={styles.statColumn}>
             <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{formatNumber(stats.totalSeeds)}</Text>

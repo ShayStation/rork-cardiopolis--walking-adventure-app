@@ -41,11 +41,13 @@ const STORAGE_KEY = 'cardiopolis_state';
 const initialState: AppState = {
   stats: {
     totalSteps: 0,
+    dailySteps: 0,
     workoutSteps: 0,
     totalWorkouts: 0,
     totalSeeds: 0,
     totalDiscoveries: 0,
-    dailyDiscoveryCount: 0
+    dailyDiscoveryCount: 0,
+    lastResetDate: new Date().toDateString()
   },
   companions: [],
   currentWorkout: null,
@@ -194,11 +196,29 @@ export const [AppProvider, useApp] = createContextHook(() => {
   
 
   
+  // Check if we need to reset daily steps
+  const checkDailyReset = useCallback((state: AppState) => {
+    const today = new Date().toDateString();
+    if (state.stats.lastResetDate !== today) {
+      console.log('Resetting daily steps for new day');
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          dailySteps: 0,
+          lastResetDate: today
+        }
+      };
+    }
+    return state;
+  }, []);
+
   // Internal step addition (used by both manual and health sync)
   const addStepsInternal = useCallback((steps: number) => {
     setState(prev => {
-      const newState = { ...prev };
+      let newState = checkDailyReset({ ...prev });
       newState.stats.totalSteps += steps;
+      newState.stats.dailySteps += steps;
       
       if (newState.currentWorkout) {
         newState.stats.workoutSteps += steps;
@@ -494,14 +514,16 @@ export const [AppProvider, useApp] = createContextHook(() => {
       
       // Get current app steps to compare
       setState(prev => {
-        if (healthSteps > prev.stats.totalSteps) {
-          const newSteps = healthSteps - prev.stats.totalSteps;
+        let newState = checkDailyReset({ ...prev });
+        
+        if (healthSteps > newState.stats.totalSteps) {
+          const newSteps = healthSteps - newState.stats.totalSteps;
           console.log(`Setting total steps to ${healthSteps} (adding ${newSteps})`);
           lastKnownHealthStepsRef.current = healthSteps;
           
           // Update state directly instead of using addStepsInternal to avoid double processing
-          const newState = { ...prev };
           newState.stats.totalSteps = healthSteps;
+          newState.stats.dailySteps += newSteps;
           
           // Update challenges for the new steps
           newState.challenges = newState.challenges.map(challenge => {
