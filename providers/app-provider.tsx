@@ -209,7 +209,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [state, isInitialized, saveToStorage]);
+  }, [state, isInitialized]);
   
   // Check if we need to reset daily steps
   const checkDailyReset = useCallback((state: AppState) => {
@@ -298,12 +298,77 @@ export const [AppProvider, useApp] = createContextHook(() => {
   
   // Public step management (for debug mode)
   const addSteps = useCallback((steps: number) => {
-    if (state.settings.stepSource === 'debug') {
-      addStepsInternal(steps);
-    } else {
-      console.log('Manual step addition disabled in health mode');
-    }
-  }, [state.settings.stepSource, addStepsInternal]);
+    setState(prev => {
+      if (prev.settings.stepSource === 'debug') {
+        // Use the internal logic directly to avoid dependency issues
+        let newState = checkDailyReset({ ...prev });
+        newState.stats.totalSteps += steps;
+        newState.stats.dailySteps += steps;
+        
+        if (newState.currentWorkout) {
+          newState.stats.workoutSteps += steps;
+          
+          // Calculate seeds (only during workout)
+          const newSeeds = Math.floor(steps / GAME_CONFIG.SEEDS_PER_STEPS);
+          newState.currentWorkout.seeds += newSeeds;
+          newState.stats.totalSeeds += newSeeds;
+          
+          // Calculate XP with workout bonus
+          const baseXP = Math.floor(steps / GAME_CONFIG.XP_PER_STEPS);
+          const bonusXP = Math.floor(baseXP * GAME_CONFIG.WORKOUT_XP_MULTIPLIER);
+          newState.currentWorkout.sessionXP += bonusXP;
+          
+          // Apply XP to selected companion
+          const selectedCompanion = newState.companions.find(c => c.isSelected);
+          if (selectedCompanion) {
+            const companion = newState.companions.find(c => c.id === selectedCompanion.id);
+            if (companion) {
+              companion.sessionXP += bonusXP;
+              companion.totalXP += bonusXP;
+            }
+          }
+        } else {
+          // Calculate XP without workout bonus
+          const baseXP = Math.floor(steps / GAME_CONFIG.XP_PER_STEPS);
+          const selectedCompanion = newState.companions.find(c => c.isSelected);
+          if (selectedCompanion) {
+            const companion = newState.companions.find(c => c.id === selectedCompanion.id);
+            if (companion) {
+              companion.totalXP += baseXP;
+            }
+          }
+        }
+        
+        // Update challenges
+        newState.challenges = newState.challenges.map(challenge => {
+          if (challenge.goalType === 'steps' && !challenge.completed) {
+            const newProgress = challenge.progress + steps;
+            return {
+              ...challenge,
+              progress: Math.min(newProgress, challenge.goal),
+              completed: newProgress >= challenge.goal
+            };
+          }
+          return challenge;
+        });
+        
+        // Check badge unlocks
+        newState.badges = newState.badges.map(badge => {
+          if (!badge.unlocked && badge.unlockRule.type === 'steps') {
+            if (newState.stats.totalSteps >= badge.unlockRule.threshold) {
+              return { ...badge, unlocked: true, unlockedAt: new Date().toISOString() };
+            }
+          }
+          return badge;
+        });
+        
+        return newState;
+      } else {
+        console.log('Manual step addition disabled in health mode');
+        return prev;
+      }
+    });
+  }, [checkDailyReset]);
   
   // Workout management
   const startWorkout = useCallback((companionId?: string) => {
@@ -419,17 +484,19 @@ export const [AppProvider, useApp] = createContextHook(() => {
   
   // Discovery management
   const addDiscovery = useCallback((hotspotType: HotspotType) => {
-    const today = new Date().toDateString();
-    const todayDiscoveries = state.discoveries.filter(d => 
-      new Date(d.at).toDateString() === today
-    ).length;
-    
-    if (todayDiscoveries >= GAME_CONFIG.DAILY_DISCOVERY_CAP) {
-      console.log('Daily discovery cap reached');
-      return false;
-    }
+    let discoveryAdded = false;
     
     setState(prev => {
+      const today = new Date().toDateString();
+      const todayDiscoveries = prev.discoveries.filter(d => 
+        new Date(d.at).toDateString() === today
+      ).length;
+      
+      if (todayDiscoveries >= GAME_CONFIG.DAILY_DISCOVERY_CAP) {
+        console.log('Daily discovery cap reached');
+        return prev;
+      }
+      
       const newDiscovery: Discovery = {
         id: generateId(),
         biomeId: prev.currentBiomeId,
@@ -457,11 +524,12 @@ export const [AppProvider, useApp] = createContextHook(() => {
         return badge;
       });
       
+      discoveryAdded = true;
       return newState;
     });
     
-    return true;
-  }, [state.discoveries]);
+    return discoveryAdded;
+  }, []);
   
   // Settings management
   const toggleDebugMode = useCallback(() => {
